@@ -1,0 +1,6 @@
+**/.venv
+**/sc_files
+*.mp4
+*.wav
+*.xml
+*.mrk
