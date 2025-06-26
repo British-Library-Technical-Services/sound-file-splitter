@@ -94,7 +94,8 @@ def main() -> None:
                         object_map["record_title"] = extract.record_title
 
                         object_data.append(object_map.copy())
-
+    for data in object_data:
+        print(data)
 
 if __name__ == "__main__":
     main()
