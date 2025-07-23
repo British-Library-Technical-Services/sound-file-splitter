@@ -1,49 +1,117 @@
-import subprocess
 
-# SMPTE25 frame > ms
-# ms = (FF / 25) * 1000
-# ffmpeg
-# -ss absolute start timecode
-# -to absolute end timecode
-# -c copy without recoding
+## filename(s)
+# mediaMD:fileData
 
-source_file = "022A-C0324X10X01X-0100M0.mp4"
-split_file = "test_ouput_1.mp4"
+## File ID
+# :fileSec
+# |- :fileGrp = "Orignal"
+# |___ :file = ID="fileN"
 
-smpte_tc_in = "00:01:01:24"
-smpte_tc_out = "00:01:25:22"
+# dm == log
+# log == phys
+# phys get cuts
 
 
-def timecode_split(input_file, tc_in, tc_out, output_file):
-    subprocess.call(
-        [
-            "ffmpeg",
-            "-i",
-            input_file,
-            "-ss",
-            tc_in,
-            "-to",
-            tc_out,
-            "-c",
-            "copy",
-            output_file,
-        ]
+import get_list_of_files
+from extract_data_from_mets import XMLDataExtrator
+
+unique_file_reference = set()
+unique_catalogue_reference = set()
+
+directory = "./sc_files/C325/"
+xml_file_glob = "*.xml"
+audio_file_glob = "*.mp4"
+namespace = {"mets": "http://www.loc.gov/METS/", "mediaMD": "mediaMDv2.1.xsd"}
+
+# object_map = {
+#     "filename": None,
+#     "file_ref": None,
+#     "cat_ref": None,
+#     "tc_in": None,
+#     "tc_out": None,
+#     "title": None,
+# }
+
+object_list = []
+
+def main():
+    xml_file_list = get_list_of_files.get_file_list_for_processing(
+        file_path=directory, file_type=xml_file_glob
     )
 
+    # audio_file_list = get_list_of_files.get_file_list_for_processing(
+    #     file_path=directory, file_type=audio_file
+    # )
+    if xml_file_list == []:
+        print(f"{directory} is empty")
+        return
 
-def frames_to_ms(smpte_tc) -> int:
-    separator = ":"
-    tc_array = smpte_tc.split(separator)
-    ff = int(tc_array.pop())
-    ms = int((ff / 25) * 1000)
-    tc_array.append(str(ms))
-    hh_mm_ss_ms = separator.join(tc_array)
-    print(hh_mm_ss_ms)
+    else:
+        for xml_file in xml_file_list:
+            xml_data_extract = XMLDataExtrator(ns=namespace)
+            xml_data_extract.get_root_data(file_to_read=xml_file)
 
-    return ms
+            filenames = xml_data_extract.get_filename()
+            if filenames == []:  
+                break
+
+            
+            file_ids = xml_data_extract.get_file_ids()
+            if file_ids == []:
+                break
 
 
-ms_tc_in = frames_to_ms(smpte_tc_in)
-ms_tc_out = frames_to_ms(smpte_tc_out)
+            dmid_record_titles = xml_data_extract.get_dmid_and_record_title()
+            if dmid_record_titles == []:
+                break
 
-# timecode_split(source_file, smpte_tc_in, smpte_tc_out, split_file)
+            logid_and_record_titles = xml_data_extract.get_logid_and_record_title()
+            if logid_and_record_titles == []:
+                break
+            
+            
+            for file in file_ids:
+                physid_timecodes = xml_data_extract.get_timecodes(original_file=file)
+                if physid_timecodes == []:
+                    break
+                
+                # print(physid_timecodes)
+
+
+            # print(filenames)
+            # print(file_ids)
+            # print(logid_and_record_titles)
+
+            object_map = {
+                    "filename": "",
+                    "file_id": ""
+                    }
+            object_data = []
+
+            if len(filenames) == len(file_ids):
+                for i, file in enumerate(filenames):
+                    object_map["filename"] = file
+                    object_map["file_id"] = file_ids[i]
+
+                    object_data.append(object_map.copy())
+
+            print(object_data)
+
+
+            break  
+    #                     # object_map["filename"] = xml_data_extract.filename
+    #                     # object_map["file_ref"] = xml_data_extract.file_reference
+    #                     # object_map["cat_ref"] = xml_data_extract.catalogue_reference
+    #                     # object_map["tc_in"] = xml_data_extract.tc_in
+    #                     # object_map["tc_out"] = xml_data_extract.tc_out
+    #                     # object_map["title"] = xml_data_extract.record_title
+    #
+    #                     # print(object_map)
+    #
+    #                     object_list.append(object_map.copy())
+    #
+    # # print(object_list)
+
+
+if __name__ == "__main__":
+    main()
