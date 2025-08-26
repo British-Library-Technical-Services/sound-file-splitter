@@ -1,4 +1,6 @@
+**/__pycache__
 **/.venv
+**/.ruff_cache
 **/sc_files
 *.mp4
 *.wav
