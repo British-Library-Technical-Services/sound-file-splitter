@@ -1,0 +1,10 @@
+cffi==1.17.1
+markdown-it-py==3.0.0
+mdurl==0.1.2
+numpy==2.0.2
+pycparser==2.22
+pygments==2.19.2
+rich==14.1.0
+soundfile==0.13.1
+tqdm==4.67.1
+typing==3.7.4.3
