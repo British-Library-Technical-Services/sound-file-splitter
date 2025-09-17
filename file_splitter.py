@@ -1,49 +1,46 @@
 import subprocess
+import os
 
 # SMPTE25 frame > ms
 # ms = (FF / 25) * 1000
 # ffmpeg
 # -ss absolute start timecode
 # -to absolute end timecode
-# -c copy without recoding
-
-source_file = "022A-C0324X10X01X-0100M0.mp4"
-split_file = "test_ouput_1.mp4"
-
-smpte_tc_in = "00:01:01:24"
-smpte_tc_out = "00:01:25:22"
+# -c copy without rencoding
 
 
-def timecode_split(input_file, tc_in, tc_out, output_file):
-    subprocess.call(
-        [
-            "ffmpeg",
-            "-i",
-            input_file,
-            "-ss",
-            tc_in,
-            "-to",
-            tc_out,
-            "-c",
-            "copy",
-            output_file,
-        ]
-    )
+def timecode_split(
+    input_file: str, timecode_in: str, timecode_out: str, output_file: str
+):
+    try:
+        subprocess.call(
+            [
+                "ffmpeg",
+                "-hide_banner",
+                "-loglevel",
+                "panic",
+                "-y",
+                "-i",
+                input_file,
+                "-ss",
+                timecode_in,
+                "-to",
+                timecode_out,
+                "-c",
+                "copy",
+                os.path.join("./soundcloud_files/", output_file),
+            ]
+        )
+    except OSError as ose:
+        raise "Error calling ffmpeg to split %s - %s" % (input_file, ose)
 
 
-def frames_to_ms(smpte_tc) -> int:
+def convert_frames_to_ms(smpte_timecode: str) -> int:
     separator = ":"
-    tc_array = smpte_tc.split(separator)
-    ff = int(tc_array.pop())
-    ms = int((ff / 25) * 1000)
-    tc_array.append(str(ms))
-    hh_mm_ss_ms = separator.join(tc_array)
-    print(hh_mm_ss_ms)
+    timecode_array = smpte_timecode.split(separator)
+    frames = int(timecode_array.pop())
+    ms = int((frames / 25) * 1000)
 
-    return ms
+    hh_mm_ss_ms = f"{separator.join(timecode_array)}.{ms}"  # required time format for ffmpeg is hh:mm:ss.ms
 
-
-ms_tc_in = frames_to_ms(smpte_tc_in)
-ms_tc_out = frames_to_ms(smpte_tc_out)
-
-# timecode_split(source_file, smpte_tc_in, smpte_tc_out, split_file)
+    return hh_mm_ss_ms
