@@ -316,6 +316,7 @@ def main():
                     print(f"Error splitting file {ose}")
 
     invalid_sound_object(errors=data_errors)
+    print("Processing complete, press and key to exit")
 
 
 if __name__ == "__main__":
