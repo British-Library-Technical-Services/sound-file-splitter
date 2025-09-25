@@ -28,7 +28,7 @@ def timecode_split(
                 timecode_out,
                 "-c",
                 "copy",
-                os.path.join("./soundcloud_files/", output_file),
+                output_file,
             ]
         )
     except OSError as ose:
