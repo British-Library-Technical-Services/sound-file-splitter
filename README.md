@@ -77,8 +77,6 @@ External dependencies: `ffmpeg` (must be on PATH for audio processing).
 **Key Python dependencies:**
 - `rich` - Console formatting and user interface
 - `tqdm` - Progress bars during processing
-- `soundfile` - Audio file handling
-- `numpy` - Numerical operations
 - Standard library: `xml.etree.ElementTree`, `tkinter`, `subprocess`
 
 ---
